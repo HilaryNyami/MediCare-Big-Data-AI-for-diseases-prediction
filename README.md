@@ -11,32 +11,31 @@
 ## 🏗️ Architecture
 
 ```
-df_final.csv  →  [Kafka]  →  [Spark/Flink]  →  [MongoDB]  →  [MLlib/TF]  →  [Streamlit]
+df_final.csv  →  [Spark]  →  [MongoDB]  →  [MLlib/TF]  →  [Streamlit]
 ```
 
 ## 🗂️ Structure du Projet
 
 ```
 sante/
-├── databricks/
+├── Pyspark/
 │   ├── 01_chargement_donnees.py    ← Upload CSV + exploration Spark
 │   ├── 02_traitement_spark.py      ← Nettoyage + VectorAssembler
 │   ├── 03_modele_mllib.py          ← Random Forest MLlib + métriques
-│   └── 04_modele_tensorflow.py     ← TensorFlow MLP + comparaison
+│   └── 04_modele_XGBoost.py        ← XGBoost MLP + comparaison
 │
 ├── kafka/
-│   ├── producer.py                 ← Simulation flux données patients
 │   └── consumer.py                 ← Traitement + stockage MongoDB
 │
 ├── streamlit_app/
-│   ├── app.py                      ← Page d'accueil
+│   ├── Home.py                      ← Page d'accueil
 │   ├── utils.py                    ← Fonctions partagées
 │   ├── pages/
+│   │   ├── 1_Diagnostic.py           ← Prédiction patient
+│   │   ├── 2_Data_Analytical.py        ← Analyse exploratoire
+│   │   └── 4_Model_performance.py            ← Performance des modèles
 │   │   ├── 1_carte.py             ← Carte OpenStreetMap interactive
-│   │   ├── 2_simulation.py        ← Prédiction patient
-│   │   ├── 3_analyse.py           ← Analyse exploratoire
-│   │   └── 4_modele.py            ← Performance des modèles
-│   ├── model/                      ← Modèle exporté depuis Databricks
+│   ├── model/                      ← Modèle exporté depuis Spark(local)
 │   └── requirements.txt
 │
 ├── df_final.csv                    ← Dataset principal
@@ -45,12 +44,9 @@ sante/
 
 ## 🚀 Étapes d'Exécution
 
-### 1. Databricks (entraînement ML)
+### 1. Spark(local) (entraînement ML)
 
-1. Aller sur [Databricks](https://dbc-2334fa60-0480.cloud.databricks.com)
-2. **Catalog > Add Data > Upload Files** → uploader `df_final.csv`
-3. Créer 4 notebooks et copier le code de chaque fichier `databricks/0X_*.py`
-4. Exécuter dans l'ordre : 01 → 02 → 03 → 04
+Modele deja sauvegarde: model/best_model_diagnostic.plk
 
 ### 2. Dashboard Streamlit (démo locale)
 
@@ -60,7 +56,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-### 3. Simulation Kafka
+### 3. Simulation Kafka (en cours de d'implementation)
 
 ```bash
 cd kafka
@@ -72,11 +68,11 @@ python consumer.py   # Traite les messages
 
 | Catégorie | Outil |
 |-----------|-------|
-| Collecte | Apache Kafka (simulé) |
+| Collecte | Apache Kafka (simulé, non operationnel) |
 | Traitement | Apache Spark (PySpark) |
-| Streaming | Apache Flink (simulé) |
-| Stockage | MongoDB Atlas + Delta Lake |
-| ML | MLlib + TensorFlow + Scikit-learn |
+| Streaming | Apache Flink (simulé, non operationnel) |
+| Stockage | MongoDB Atlas|
+| ML | MLlib + XGBoost + Scikit-learn |
 | Dashboard | Streamlit + Folium + Plotly |
 | Carte | OpenStreetMap |
 
@@ -84,6 +80,6 @@ python consumer.py   # Traite les messages
 
 | Modèle | Accuracy | Dataset |
 |--------|----------|---------|
-| Random Forest (MLlib) | ~91% | ~800K patients |
-| TensorFlow MLP | ~87% | 100K patients |
-| Scikit-learn RF | ~89% | ~800K patients |
+| Random Forest (MLlib) | ~91, 4% | ~1M patients |
+| XGBoost MLP | ~94,4% | ~1M patients |
+| Scikit-learn RF | ~94,1% | ~1M patients |
